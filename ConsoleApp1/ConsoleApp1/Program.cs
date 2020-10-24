@@ -10,7 +10,7 @@ namespace ConsoleApp1
 			Console.WriteLine("Hello MOZE BR!");
 			Console.WriteLine("Hello STA MAI!");
 			Console.WriteLine("Hello World!");
-			Console.WriteLine("Hello World!");
+			Console.WriteLine("Hello World!"); 
 
 		}
 	}

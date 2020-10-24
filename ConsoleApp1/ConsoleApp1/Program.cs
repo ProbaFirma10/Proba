@@ -7,7 +7,7 @@ namespace ConsoleApp1
 		static void Main(string[] args)
 		{
 			Console.WriteLine("CAO! Popravi ga Trki!");
-			Console.WriteLine("CAO OPET!");
+			Console.WriteLine("CAO OPETTT!");
 		}
 	}
 }

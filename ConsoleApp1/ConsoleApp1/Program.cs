@@ -12,8 +12,8 @@ namespace ConsoleApp1
 			Console.WriteLine("Hello World!");
 			Console.WriteLine("Hello World!");
 			Console.WriteLine("Ukuco sam!");
-			Console.WriteLine("Hello World!"); 
-
+			Console.WriteLine("Hello World!");
+			Console.WriteLine("Evo novi pull request!");
 		}
 	}
 }

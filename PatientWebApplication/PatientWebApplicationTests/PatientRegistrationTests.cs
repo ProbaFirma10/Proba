@@ -1,4 +1,4 @@
-﻿using HealthClinic.CL.Dtos;
+using HealthClinic.CL.Dtos;
 using HealthClinic.CL.Model.Patient;
 using HealthClinic.CL.Repository;
 using HealthClinic.CL.Service;
@@ -21,7 +21,7 @@ namespace PatientWebApplicationTests
 
             
 
-            PatientUser patient =  service.Create(new PatientDto("Pera2", "Peric", "Male", "1234", "11/11/2000", "1231412", "21312312", "Alergija", "Grad", "email@gmail.com", "pass", false, "Grad2", "Roditelj", "", ""));
+            PatientUser patient =  service.Create(new PatientDto("MIKA", "MIkic", "Male", "1234", "11/11/2000", "1231412", "21312312", "PAJA", "Grad", "email@gmail.com", "pass", false, "Grad2", "Roditelj", "", ""));
             patient.ShouldNotBeNull();
 
         }    

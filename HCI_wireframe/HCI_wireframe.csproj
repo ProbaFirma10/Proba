@@ -18,10 +18,6 @@
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core' Or '$(TargetFrameworkIdentifier)' != '.NETFramework'">
-    <GenerateResourceMSBuildArchitecture Condition=" '$(GenerateResourceMSBuildArchitecture)' == '' ">CurrentArchitecture</GenerateResourceMSBuildArchitecture>
-    <GenerateResourceMSBuildRuntime Condition=" '$(GenerateResourceMSBuildRuntime)' == '' ">CurrentRuntime</GenerateResourceMSBuildRuntime>
-  </PropertyGroup> 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
@@ -966,4 +962,8 @@
     <Error Condition="!Exists('..\IntegrationWithPharmacies\packages\NETStandard.Library.2.0.0\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\IntegrationWithPharmacies\packages\NETStandard.Library.2.0.0\build\netstandard2.0\NETStandard.Library.targets'))" />
   </Target>
   <Import Project="..\IntegrationWithPharmacies\packages\NETStandard.Library.2.0.0\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\IntegrationWithPharmacies\packages\NETStandard.Library.2.0.0\build\netstandard2.0\NETStandard.Library.targets')" />
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core' Or '$(TargetFrameworkIdentifier)' != '.NETFramework'">
+    <GenerateResourceMSBuildArchitecture Condition=" '$(GenerateResourceMSBuildArchitecture)' == '' ">CurrentArchitecture</GenerateResourceMSBuildArchitecture>
+    <GenerateResourceMSBuildRuntime Condition=" '$(GenerateResourceMSBuildRuntime)' == '' ">CurrentRuntime</GenerateResourceMSBuildRuntime>
+  </PropertyGroup> 
 </Project>

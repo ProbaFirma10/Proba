@@ -9,11 +9,11 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
-COPY ["IntegrationWithPharmacies.csproj", "./"]
-COPY ["../PatientWebApplication/HealthClinic.DAL/HealthClinic.CL.csproj", "../PatientWebApplication/HealthClinic.DAL/"]
-RUN dotnet restore "IntegrationWithPharmacies.csproj"
+COPY ["IntegrationWithPharmacies.csproj", ""]
+COPY ["../HealthClinic.DAL/HealthClinic.CL.csproj", "../HealthClinic.DAL/"]
+RUN dotnet restore "./IntegrationWithPharmacies.csproj"
 COPY . .
-WORKDIR "/src/"
+WORKDIR "/src/."
 RUN dotnet build "IntegrationWithPharmacies.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -22,4 +22,4 @@ RUN dotnet publish "IntegrationWithPharmacies.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "IntegrationWithPharmacies.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet PrimerWebApi.dll

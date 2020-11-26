@@ -1,8 +1,0 @@
-version: '3.4'
-
-services:
-  integrationwithpharmacies:
-    image: ${DOCKER_REGISTRY-}integrationwithpharmacies
-    build:
-      context: .
-      dockerfile: Dockerfile

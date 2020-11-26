@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HCI_wireframe\HCI_wireframe.csproj" />
-    <ProjectReference Include="..\PatientWebApplication\HealthClinic.DAL\HealthClinic.CL.csproj" />
+    <ProjectReference Include="..\HealthClinic.DAL\HealthClinic.CL.csproj" />
   </ItemGroup>
 
 

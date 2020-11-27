@@ -29,14 +29,12 @@ steps:
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
   inputs:
-    restoreSolution: '$(Parameters.solution)'
+    restoreSolution: '$(solution)'
 
 - task: VSBuild@1
   displayName: 'Build solution **\*.sln'
   inputs:
-    solution: '$(Parameters.solution)'
-    platform: '$(BuildPlatform)'
-    configuration: '$(BuildConfiguration)'
+    solution: '**\*.sln'
 
 - task: VSTest@2
   displayName: 'Test Assemblies'

@@ -75,4 +75,13 @@ steps:
       dotnet publish PatientWebApplication/PatientWebApplication.csproj -c Release -o publish
       cp PatientWebApplication/Dockerfile publish
         
-
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Docke hub'
+    repository: 'trki293/proba_firma10'
+    command: 'buildAndPush'
+    Dockerfile: 'PatientWebApplication/publish/Dockerfile'
+    buildContext: 'PatientWebApplication/publish'
+    tags: |
+      $(Build.BuildId)
+      lastest

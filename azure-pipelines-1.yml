@@ -42,11 +42,9 @@ steps:
 - task: SonarCloudPrepare@1
   inputs:
     SonarCloud: 'proba'
-    organization: 'probaorg10'
+    organization: 'probafirma10'
     scannerMode: 'MSBuild'
     projectKey: 'ProbaFirma10_Proba'
-    projectName: 'Proba'
-    extraProperties: 'sonar.login="a6ba2b359afd01d1df1e3b21372e61fd13b0baee"'
 
 - task: DotNetCoreCLI@2
   displayName: Build

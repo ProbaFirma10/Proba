@@ -45,6 +45,7 @@ steps:
     organization: 'probafirma10'
     scannerMode: 'MSBuild'
     projectKey: 'ProbaFirma10_Proba'
+    projectName: 'Proba'
 
 - task: DotNetCoreCLI@2
   displayName: Build

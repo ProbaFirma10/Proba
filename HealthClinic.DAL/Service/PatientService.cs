@@ -36,16 +36,6 @@ namespace HealthClinic.CL.Service
             return patient;
         }
 
-        public PatientUser Validate(int id)
-        {
-            PatientUser patient = PatientsRepository.Find(id);
-            if(patient != null)
-            {
-                return PatientsRepository.Validate(patient);
-            }
-
-            return null;
-        }
 
         public List<PatientUser> GetAll()
         {

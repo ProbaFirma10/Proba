@@ -38,9 +38,11 @@ steps:
         @babel/runtime
       dotnet restore PatientWebApplication/PatientWebApplication.csproj
 
+- 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
+    projects: 'PatientWebApplication/PatientWebApplication.csproj'
 
 - task: DotNetCoreCLI@2
   inputs:

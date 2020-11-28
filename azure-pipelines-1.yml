@@ -36,7 +36,7 @@ steps:
               clsx \
               axios \
               @babel/runtime
-            dotnet restore PatientWebApplication/PatientWebApplication.csproj -c Release -o restore
+            dotnet restore PatientWebApplication/PatientWebApplication.csproj
 
 - task: SonarCloudPrepare@1
   inputs:

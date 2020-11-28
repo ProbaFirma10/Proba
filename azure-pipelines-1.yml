@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  name: Lokalni pool
+  vmImage: 'windows-latest'
 
 steps:
 - task: UseDotNet@2

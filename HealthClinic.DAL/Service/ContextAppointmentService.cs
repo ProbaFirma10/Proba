@@ -9,7 +9,7 @@ namespace HealthClinic.CL.Service
 {
     public class ContextAppointmentService
     {
-        public IStrategyAppointment iStrategyAppointment
+        public IStrategyAppointment iStrategyAppointment;
         public ContextAppointmentService()
         {
            

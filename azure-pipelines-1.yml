@@ -42,7 +42,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '**/PatientWebApplication.csproj'
+    projects: '*/PatientWebApplication/PatientWebApplication/PatientWebApplication.csproj'
 
 - task: DotNetCoreCLI@2
   inputs:

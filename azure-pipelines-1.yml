@@ -39,6 +39,13 @@ steps:
         @babel/runtime
       dotnet restore PatientWebApplication/PatientWebApplication.csproj
 
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'proba'
+    organization: 'probaorg10'
+    scannerMode: 'MSBuild'
+    projectKey: 'ProbaFirma10_Proba'
+
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:

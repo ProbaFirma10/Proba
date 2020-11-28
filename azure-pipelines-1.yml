@@ -20,27 +20,23 @@ steps:
     targetType: 'inline'
     script: |
       docker --version
-            cd PatientWebApplication
-            npm install\
-              react-toastify \
-              react-transition-group \
-              regenerator-runtime \
-              react-is \
-              prop-types \
-              object-assign \
-              loose-envify \
-              js-tokens \
-              follow-redirects \
-              dom-helpers \
-              csstype \
-              clsx \
-              axios \
-              @babel/runtime
-            dotnet restore PatientWebApplication/PatientWebApplication.csproj
-
-- task: SonarCloudPrepare@1
-  inputs:
-    scannerMode: 'MSBuild'
+      cd PatientWebApplication
+      npm install\
+        react-toastify \
+        react-transition-group \
+        regenerator-runtime \
+        react-is \
+        prop-types \
+        object-assign \
+        loose-envify \
+        js-tokens \
+        follow-redirects \
+        dom-helpers \
+        csstype \
+        clsx \
+        axios \
+        @babel/runtime
+      dotnet restore PatientWebApplication/PatientWebApplication.csproj
 
 - task: DotNetCoreCLI@2
   inputs:

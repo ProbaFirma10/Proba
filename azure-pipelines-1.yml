@@ -72,21 +72,6 @@ steps:
     script: |
       docker --version
       cd PatientWebApplication
-      npm install\
-        react-toastify \
-        react-transition-group \
-        regenerator-runtime \
-        react-is \
-        prop-types \
-        object-assign \
-        loose-envify \
-        js-tokens \
-        follow-redirects \
-        dom-helpers \
-        csstype \
-        clsx \
-        axios \
-        @babel/runtime
       dotnet publish PatientWebApplication/PatientWebApplication.csproj -c Release -o publish
       cp PatientWebApplication/Dockerfile publish
         

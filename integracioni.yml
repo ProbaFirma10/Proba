@@ -35,6 +35,15 @@ steps:
       docker --version
       cd IntegrationWithPharmacies
       dotnet restore IntegrationWithPharmacies.csproj
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'proba'
+    organization: 'probafirma10'
+    scannerMode: 'MSBuild'
+    projectKey: 'ProbaFirma10_Proba'
+    projectName: 'Proba'
+
 - task: MSBuild@1
   displayName: Build
   inputs:
@@ -49,6 +58,11 @@ steps:
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
+- task: SonarCloudAnalyze@1
+
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
 
     
 - task: Bash@3

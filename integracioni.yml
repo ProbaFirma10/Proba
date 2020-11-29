@@ -49,14 +49,18 @@ steps:
   inputs:
     solution: '**/IntegrationWithPharmacies.csproj'
 
+
+- task: MSBuild@1
+  displayName: Build
+  inputs:
+    solution: '**/IntegrationWithPharmaciesTest.csproj'
+
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **/IntegrationWithPharmaciesTest.csproj
-      !**\*TestAdapter.dll
-      !**\obj\**
+    testAssemblyVer2: '**\bin\Debug\netcoreapp3.1\IntegrationWithPharmaciesTest.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
+
 
 - task: SonarCloudAnalyze@1
 

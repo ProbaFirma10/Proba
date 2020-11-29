@@ -35,20 +35,38 @@ steps:
       docker --version
       cd IntegrationWithPharmacies
       dotnet restore IntegrationWithPharmacies.csproj
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'proba'
+    organization: 'probafirma10'
+    scannerMode: 'MSBuild'
+    projectKey: 'ProbaFirma10_Proba'
+    projectName: 'Proba'
+
 - task: MSBuild@1
   displayName: Build
   inputs:
     solution: '**/IntegrationWithPharmacies.csproj'
 
+
+- task: MSBuild@1
+  displayName: Build
+  inputs:
+    solution: '**/IntegrationWithPharmaciesTest.csproj'
+
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **/IntegrationWithPharmaciesTest.csproj
-      !**\*TestAdapter.dll
-      !**\obj\**
+    testAssemblyVer2: '**\bin\Debug\netcoreapp3.1\IntegrationWithPharmaciesTest.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
+
+- task: SonarCloudAnalyze@1
+
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
 
     
 - task: Bash@3

@@ -43,7 +43,7 @@ namespace IntegrationWithPharmaciesTest
 
             RegistrationInPharmacy foundRegistration = service.getPharmacyApiKey("apisa99");
 
-            foundRegistration.ShouldNotBeNull();
+            foundRegistration.ShouldBeNull();
         }
     }
 }

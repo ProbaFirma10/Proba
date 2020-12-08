@@ -1,20 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace HealthClinic.CL.Dtos
 {
     public class RegistrationInPharmacyDto
     {
-
-        public int pharmacyId { get; set; }
-        public String apiKey { get; set; }
+        public int PharmacyId { get; set; }
+        public String ApiKey { get; set; }
+        public String Name { get; set; }
+        public String Town { get; set; }
 
         public RegistrationInPharmacyDto() { }
-        public RegistrationInPharmacyDto(int idPharmacy, String apiKeyPharmacy)
+
+        public RegistrationInPharmacyDto(int idPharmacy, String apiKeyPharmacy, String pharmacyName, String pharmacyTown)
         {
-            pharmacyId = idPharmacy;
-            apiKey = apiKeyPharmacy;
+            PharmacyId = idPharmacy;
+            ApiKey = apiKeyPharmacy;
+            Name = pharmacyName;
+            Town = pharmacyTown;
         }
     }
 }

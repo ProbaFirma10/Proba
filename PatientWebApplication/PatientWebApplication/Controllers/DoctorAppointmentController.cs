@@ -20,11 +20,13 @@ namespace PatientWebApplication.Controllers
     {
         /// <value>Property <c>RegularAppointmentService</c> represents the service used for handling business logic.</value>
         private RegularAppointmentService regularAppointmentService;
+        private DoctorService doctorService;
 
         /// <summary>This constructor initiates the DoctorAppointmentController's appointment service.</summary>
         public DoctorAppointmentController()
         {
-            this.regularAppointmentService = new RegularAppointmentService(new AppointmentRepository());
+            this.regularAppointmentService = new RegularAppointmentService(new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository()), new PatientsRepository(), new OperationService(new OperationRepository()));
+            this.doctorService = new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository());
         }
 
         /// <summary> This method is calling <c>RegularAppointmentService</c> to get list of all appointments of one patient. </summary>
@@ -46,12 +48,40 @@ namespace PatientWebApplication.Controllers
             return Ok(new AppointmentAdapter().ConvertAppointmentListToAppointmentDtoList(this.regularAppointmentService.SimpleSearchAppointments(dto)));
         }
 
-        /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c>. </summary>
+        /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that already happend. </summary>
         /// <returns> 200 Ok with list of all patient prescriptions. </returns>
         [HttpGet("patient")]       
         public IActionResult GetAppointmentsForPatient()
         {
-            return Ok(this.regularAppointmentService.GetAppointmentsForPatient(2)); 
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatient(1)); 
+        }
+
+        /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that is happening in two days. </summary>
+        /// <returns> 200 Ok with list of all patient prescriptions. </returns>
+        [HttpGet("patientInTwoDays")]
+        public IActionResult GetAppointmentsForPatientInTwoDays()
+        {
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInTwoDays(1));
+        }
+
+        /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that already happend. </summary>
+        /// <returns> 200 Ok with list of all patient prescriptions. </returns>
+        [HttpGet("patientInFuture")]
+        public IActionResult GetAppointmentsForPatientInFuture()
+        {
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInFuture(1));
+        }
+
+        /// <summary> This method provides <paramref name="appointmentId"/> and sends it to <c>RegularAppointmentService</c> there appointment.IsCanceled will be set to true. </summary>
+        /// <param name="appointmentId"> is <c>DoctorAppointment</c> that needs to be canceled.
+        /// </param>
+        /// <returns>200 Ok with canceled appointment.</returns>
+        [HttpPut("{appointmentId}")]
+        public IActionResult CancelAppointment(int appointmentId)
+        {
+            DoctorAppointment appointment = this.regularAppointmentService.CancelAppointment(appointmentId);
+            if (appointment == null) return BadRequest();
+            return Ok(appointment);
         }
 
         /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that matches <c>Appointment dto</c>. </summary>
@@ -64,5 +94,17 @@ namespace PatientWebApplication.Controllers
             return Ok(this.regularAppointmentService.AdvancedSearchAppointments(dto));
         }
 
+        [HttpPost("availableappointments")]
+        public IActionResult GetAvailableAppointments(AvailableAppointmentsSearchDto dto)
+        {
+            return Ok(this.regularAppointmentService.GetAllAvailableAppointmentsForDate(dto.Date, dto.DoctorId, dto.PatientId));
+        }
+
+        [HttpPost]
+        public IActionResult Post(DoctorAppointment appointment)
+        {
+            this.regularAppointmentService.New(appointment, null);
+            return Ok();
+        }
     }
 }

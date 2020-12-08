@@ -21,9 +21,14 @@
     LOADED_APPOINTMENTSURVEY,
     LOADED_ALL_PATIENT_REPORTS,
     OBSERVE_PATIENT_REPORTS_ERROR,
+    LOADED_ALL_RATES,
+    LOADED_ALL_DOCTOR_RATES,
     ADVANCED_SEARCH_PATIENT_APPOINTMENTS,
     ADVANCED_SEARCH_APPOINTMENTS_ERROR,
     LOADED_ALL_PATIENT_APPOINTMENTS,
+    LOADED_ALL_PATIENT_APPOINTMENTS_INTWODAYS,
+    LOADED_ALL_PATIENT_APPOINTMENTS_INFUTURE,
+    CANCEL_APPOINTMENT,
     OBSERVE_PATIENT_APPOINTMENTS_ERROR
 } from "../types/types"
 import axios from "axios";
@@ -309,6 +314,91 @@ export const loadedAllPatientAppointments = () => async (dispatch) => {
         debugger;
         dispatch({
             type: LOADED_ALL_PATIENT_APPOINTMENTS,
+            payload: response.data,
+        });
+    } catch (e) {
+        dispatch({
+            type: OBSERVE_PATIENT_APPOINTMENTS_ERROR,
+            payload: console.log(e),
+        });
+    }
+};
+
+export const loadedAllRates = () => async (dispatch) => {
+    try {
+        debugger;
+        const response = await axios.get("http://localhost:60198/api/survey/getRates");
+        debugger;
+        dispatch({
+            type: LOADED_ALL_RATES,
+            payload: response.data,
+        });
+    } catch (e) {
+        dispatch({
+            type: OBSERVE_ERROR,
+            payload: console.log(e),
+        });
+    }
+};
+
+export const loadedAllDoctorRates = () => async (dispatch) => {
+    try {
+        debugger;
+        const response = await axios.get("http://localhost:60198/api/survey/getDoctorRates");
+        debugger;
+        dispatch({
+            type: LOADED_ALL_DOCTOR_RATES,
+            payload: response.data,
+        });
+    } catch (e) {
+        dispatch({
+            type: OBSERVE_ERROR,
+            payload: console.log(e),
+        });
+    }
+};
+
+export const loadedAllPatientAppointmentsInTwoDays = () => async (dispatch) => {
+    try {
+        debugger;
+        const response = await axios.get("http://localhost:60198/api/doctorappointment/patientInTwoDays");
+        debugger;
+        dispatch({
+            type: LOADED_ALL_PATIENT_APPOINTMENTS_INTWODAYS,
+            payload: response.data,
+        });
+    } catch (e) {
+        dispatch({
+            type: OBSERVE_PATIENT_APPOINTMENTS_ERROR,
+            payload: console.log(e),
+        });
+    }
+};
+
+export const loadedAllPatientAppointmentsInFuture = () => async (dispatch) => {
+    try {
+        debugger;
+        const response = await axios.get("http://localhost:60198/api/doctorappointment/patientInFuture");
+        debugger;
+        dispatch({
+            type: LOADED_ALL_PATIENT_APPOINTMENTS_INFUTURE,
+            payload: response.data,
+        });
+    } catch (e) {
+        dispatch({
+            type: OBSERVE_PATIENT_APPOINTMENTS_ERROR,
+            payload: console.log(e),
+        });
+    }
+};
+
+export const cancelAppointment = (appointmentId) => async (dispatch) => {
+    try {
+        debugger;
+        const response = await axios.put("http://localhost:60198/api/doctorappointment/" + appointmentId );
+        debugger;
+        dispatch({
+            type: CANCEL_APPOINTMENT,
             payload: response.data,
         });
     } catch (e) {

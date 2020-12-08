@@ -22,17 +22,19 @@ namespace HealthClinic.CL.Service
     public class RegularAppointmentService : BingPath, IStrategyAppointment
     {
         private IAppointmentRepository _appointmentRepository;
-        public DoctorController doctorController;
-        public EmployeesScheduleController employeesScheduleController;
-        public PatientController patientController;
+        private DoctorService doctorService;
+        private EmployeesScheduleService employeesScheduleService;
+        private IPatientsRepository _patientRepository;
+        private OperationService operationService;
         String path = bingPathToAppDir(@"JsonFiles\appointments.json");
 
-        public RegularAppointmentService(IAppointmentRepository appointmentRepository)
+        public RegularAppointmentService(IAppointmentRepository appointmentRepository, IEmployeesScheduleRepository employeesScheduleRepository, DoctorService doctorService, IPatientsRepository patientRepository, OperationService operationService)
         {
             this._appointmentRepository = appointmentRepository;
-            doctorController = new DoctorController();
-            employeesScheduleController = new EmployeesScheduleController();
-            patientController = new PatientController();
+            this.doctorService = doctorService;
+            this.employeesScheduleService = new EmployeesScheduleService(employeesScheduleRepository);
+            this._patientRepository = patientRepository;
+            this.operationService = operationService;
         }
 
         /// <summary> This method is calling <c>AppointmentRepository</c> to get list of all appointments. </summary>
@@ -47,6 +49,7 @@ namespace HealthClinic.CL.Service
         /// <returns> Created appointment. </returns>
         public void New(DoctorAppointment appointment, Operation operation)
         {
+            if (!GetAllAvailableAppointmentsForDate(appointment.Date, appointment.DoctorUserId, appointment.PatientUserId).Contains(appointment)) return;
             _appointmentRepository.New(appointment);
         }
 
@@ -74,12 +77,33 @@ namespace HealthClinic.CL.Service
             return _appointmentRepository.GetByid(id);
         }
 
-        /// <summary> This method is calling <c>AppointmentRepository</c> to get all appointments of one patient. </summary>
+        /// <summary> This method is calling <c>AppointmentRepository</c> to get all appointments of one patient that already happend . </summary>
         /// <param name="id"><c>id</c> is id of patient who's appointments we need.</param>
         /// <returns> List of patient's appointments. </returns>
         public List<DoctorAppointment> GetAppointmentsForPatient(int id)
         {
-            return _appointmentRepository.GetAppointmentsForPatient(id);
+            return CheckIfAppointmentsHappened(_appointmentRepository.GetAppointmentsForPatient(id));
+        }
+
+        /// <summary> This method is calling <c>AppointmentRepository</c> to get all appointments of one patient that is happening in next 2 days . </summary>
+        /// <param name="id"><c>id</c> is id of patient who's appointments we need.</param>
+        /// <returns> List of patient's appointments. </returns>
+        public List<DoctorAppointment> GetAppointmentsForPatientInTwoDays(int id)
+        {
+            return CheckIfAppointmentsAreInTwoDays(_appointmentRepository.GetAppointmentsForPatient(id));
+        }
+
+        /// <summary> This method is calling <c>AppointmentRepository</c> to get all appointments of one patient that is happening in future . </summary>
+        /// <param name="id"><c>id</c> is id of patient who's appointments we need.</param>
+        /// <returns> List of patient's appointments. </returns>
+        public List<DoctorAppointment> GetAppointmentsForPatientInFuture(int id)
+        {
+            return CheckIfAppointmentsAreInFuture(_appointmentRepository.GetAppointmentsForPatient(id));
+        }
+
+        public List<DoctorAppointment> GetAppointmentsForDoctor(int id)
+        {
+            return _appointmentRepository.GetAppointmentsForDoctor(id);
         }
 
         public DoctorAppointment RecommendAnAppointment(DoctorUser doctor, DateTime date1, DateTime date2, PatientUser patient)
@@ -91,16 +115,63 @@ namespace HealthClinic.CL.Service
             }
             return null;
         }
+        private List<DoctorAppointment> GetAllAppointmentsByDateAndDoctor(DateTime date, int doctorId)
+        {
+            return GetAppointmentsForDoctor(doctorId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date))).ToList();
+        }
 
+        private List<DoctorAppointment> GetAllAppointmentsByDateAndPatient(DateTime date, int patientId)
+        {
+            return GetAppointmentsForPatient(patientId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date))).ToList();
+        }
 
         private DoctorAppointment getAvailableTerm(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient)
         {
-            Shift doctorShift = employeesScheduleController.getShiftForDoctorForSpecificDay(makeStringFromDate(date), doctor);
+            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(makeStringFromDate(date), doctor);
 
             if (doctorShift != null && doctorShift.startTime != null && doctorShift.endTime != null)
                 return getNewDoctorAppointment(doctor, date, time1, patient, doctorShift);
 
             return null;
+        }
+
+        public List<DoctorAppointment> GetAllAvailableAppointmentsForDate(string dateString, int doctorId, int patientId)
+        {
+            DateTime date = UtilityMethods.ParseDateInCorrectFormat(dateString);
+            List<DoctorAppointment> availableAppointments = new List<DoctorAppointment>();
+            List<TimeSpan> startTimesAppointments = GetAllStartTimes(CreateAppointmentSetForDate(date, doctorId, patientId).ToList());
+            List<Operation> operations = operationService.CreateOperationtSetForDate(date, doctorId, patientId).ToList();
+            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(dateString, doctorService.GetByid(doctorId));
+            if(doctorShift == null)
+            {
+                return availableAppointments;
+            }
+            TimeSpan time = TimeSpan.Parse(doctorShift.startTime);
+            while (time != TimeSpan.Parse(doctorShift.endTime)){
+                if (!startTimesAppointments.Contains(time) && !operationService.IsOperationInTimePeriod(time, operations))
+                {
+                    availableAppointments.Add(new DoctorAppointment(0, time, dateString, patientId, doctorId, new List<Referral>(), doctorService.GetByid(doctorId).ordination));
+                }
+                time = time.Add(TimeSpan.FromMinutes(15));
+            }
+            return availableAppointments;
+        }
+
+        private HashSet<DoctorAppointment> CreateAppointmentSetForDate(DateTime date, int doctorId, int patientId)
+        {
+            HashSet<DoctorAppointment> appointmentsSet = new HashSet<DoctorAppointment>(GetAllAppointmentsByDateAndDoctor(date, doctorId));
+            appointmentsSet.UnionWith(GetAllAppointmentsByDateAndPatient(date, patientId));
+            return appointmentsSet;
+        }
+
+        private List<TimeSpan> GetAllStartTimes(List<DoctorAppointment> appointments)
+        {
+            List <TimeSpan> startTimes = new List<TimeSpan>();
+            foreach (DoctorAppointment appointment in appointments)
+            {
+                startTimes.Add(appointment.Start);
+            }
+            return startTimes;
         }
 
         private DoctorAppointment getNewDoctorAppointment(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient, Shift doctorShift)
@@ -154,7 +225,7 @@ namespace HealthClinic.CL.Service
 
         public DoctorAppointment recommenedAnAppointmentDatePriority(DateTime date1, DateTime date2, PatientUser patient)
         {
-            List<DoctorUser> doctorsList = doctorController.GetAll();
+            List<DoctorUser> doctorsList = doctorService.GetAll();
 
             foreach (DoctorUser doctor in doctorsList)
             {
@@ -166,8 +237,8 @@ namespace HealthClinic.CL.Service
 
         public Boolean isTermNotAvailable(DoctorUser doctor, TimeSpan time, String dateToString, PatientUser patient)
         {
-            Boolean hasAppointmentDoctor = doctorController.doesDoctorHaveAnAppointmentAtSpecificTime(doctor, time, dateToString);
-            Boolean hasOperationDoctor = doctorController.doesDoctorHaveAnOperationAtSpecificTime(doctor, time, dateToString);
+            Boolean hasAppointmentDoctor = doctorService.DoesDoctorHaveAnAppointmentAtSpecificTime(doctor, time, dateToString);
+            Boolean hasOperationDoctor = doctorService.DoesDoctorHaveAnOperationAtSpecificTime(doctor, time, dateToString);
            
             if (hasAppointmentDoctor == true || hasOperationDoctor == true ) return true;
 
@@ -368,11 +439,25 @@ namespace HealthClinic.CL.Service
                 appointments = appointments.FindAll(appointment => appointment.RoomId.Contains(searchField));
             }
             return appointments;
-        }       
+        }
 
+        /// <summary> This method is getting lists of <c>DoctorAppointment</c> and <c>Survey</c> and checks for all valid appointment. </summary>
+        /// <param name="allValidAppointments"><c>appointments</c> is empty List of valid appointments. </param>
+        /// <param name="surveys"><c>surveys</c> is List of all surveys </param>
+        /// <returns> List of valid appointments. </returns>
         public List<DoctorAppointment> FindAllValidAppointments(List<DoctorAppointment> allValidAppointments, List<Survey> surveys)
         {
             return CheckIfAppointmentsHappened(allValidAppointments.Where(p => !FindAllUnvalidAppointments(surveys).Any(p2 => p2 == p.id)).ToList());
+        }
+
+        /// <summary> This method provides <c>DoctorAppointment</c> <paramref name="appointment"/> and sends it to <c>AppointmentRepository</c> there appointment.IsCanceled will be set to true. </summary>
+        /// <param name="appointment"><c>DoctorAppointment</c> is <c>DoctorAppointment</c> that needs to be canceled.
+        /// </param>
+        /// <returns>null if DoctorAppointment is not valid; otherwise, succesfully canceled DoctorAppointment. </returns>
+        public DoctorAppointment CancelAppointment(int appointmentId)
+        {
+            DoctorAppointment appointment = CheckIfAppointmentsAreInFutureFromToday(_appointmentRepository.GetByid(appointmentId));
+            return (appointment == null) ? null : _appointmentRepository.CancelAppointment(appointment);
         }
 
         private static List<int> FindAllUnvalidAppointments(List<Survey> allSurveys)
@@ -388,6 +473,18 @@ namespace HealthClinic.CL.Service
         private List<DoctorAppointment> CheckIfAppointmentsHappened(List<DoctorAppointment> allValidAppointments)
         {
             return allValidAppointments.Where(appointment => UtilityMethods.ParseDateInCorrectFormat(appointment.Date) < DateTime.Now).ToList();
+        }
+        private List<DoctorAppointment> CheckIfAppointmentsAreInTwoDays(List<DoctorAppointment> allValidAppointments)
+        {
+            return allValidAppointments.Where(appointment => ((UtilityMethods.ParseDateInCorrectFormat(appointment.Date) < (DateTime.Now.AddDays(2))) && (UtilityMethods.ParseDateInCorrectFormat(appointment.Date) >= DateTime.Now))).ToList();
+        }
+        private List<DoctorAppointment> CheckIfAppointmentsAreInFuture(List<DoctorAppointment> allValidAppointments)
+        {
+            return allValidAppointments.Where(appointment => UtilityMethods.ParseDateInCorrectFormat(appointment.Date) > DateTime.Now.AddDays(2)).ToList();
+        }
+        private DoctorAppointment CheckIfAppointmentsAreInFutureFromToday(DoctorAppointment appointment)
+        {
+            return (UtilityMethods.ParseDateInCorrectFormat(appointment.Date) < DateTime.Now.AddDays(2)) ? null : appointment;
         }
     }
 }

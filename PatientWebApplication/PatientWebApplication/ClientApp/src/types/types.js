@@ -22,8 +22,12 @@ export const LOADED_ALL_PATIENT_REPORTS = "loadedAllReports";
 export const OBSERVE_PATIENT_REPORTS_ERROR = "patientReportsObservedError";
 export const SIMPLE_SEARCH_APPOINTMENTS_DONE = "simpleSearchAppointmentsDone";
 export const SIMPLE_SEARCH_APPOINTMENTS_ERROR = "simpleSearchAppointmentssError";
+export const LOADED_ALL_RATES = "loadedAllRates";
+export const LOADED_ALL_DOCTOR_RATES = "loadedAllDoctorRates";
 export const ADVANCED_SEARCH_PATIENT_APPOINTMENTS = "advancedSearchPatientAppointments";
 export const ADVANCED_SEARCH_APPOINTMENTS_ERROR = "advancedSearchAppointmentsError";
 export const LOADED_ALL_PATIENT_APPOINTMENTS = "loadedAllPatientAppointments";
 export const OBSERVE_PATIENT_APPOINTMENTS_ERROR = "observePatientAppointmentsError";
-
+export const LOADED_ALL_PATIENT_APPOINTMENTS_INTWODAYS = "loadedAllPatientAppointmentsInTwoDays";
+export const LOADED_ALL_PATIENT_APPOINTMENTS_INFUTURE = "loadedAllPatientAppointmentsInFuture";
+export const CANCEL_APPOINTMENT = "cancelAppointment";

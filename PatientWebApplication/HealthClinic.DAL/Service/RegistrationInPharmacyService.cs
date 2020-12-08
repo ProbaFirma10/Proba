@@ -5,7 +5,6 @@ using HealthClinic.CL.Model.Pharmacy;
 using HealthClinic.CL.Repository;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HealthClinic.CL.Service
 {
@@ -30,14 +29,14 @@ namespace HealthClinic.CL.Service
         public RegistrationInPharmacy Create(RegistrationInPharmacyDto dto)
         {
             RegistrationInPharmacy registration = RegistrationInPharmacyAdapter.RegistrationDtoToRegistration(dto);
-            if (isApiKeyUnique(registration.apiKey))  return RegistrationInPharmacyRepository.Create(registration); 
+            if (isApiKeyUnique(registration.ApiKey))  return RegistrationInPharmacyRepository.Create(registration); 
              return null;
         }
         public bool isApiKeyUnique(String apiKey)
         {
             foreach(RegistrationInPharmacy registration in GetAll())
             {
-                if (registration.apiKey.Equals(apiKey)) return false;
+                if (registration.ApiKey.Equals(apiKey)) return false;
             }
             return true;
         }
@@ -50,10 +49,33 @@ namespace HealthClinic.CL.Service
         {
             foreach (RegistrationInPharmacy registration in IRegistrationRepository.GetAll())
             {
-                if (registration.apiKey.Equals(apiKey))  return registration; 
+                if (registration.ApiKey.Equals(apiKey))  return registration; 
             }
             return null;
         }
-
+        public RegistrationInPharmacy GetRegistrationByPharmacyName(String name)
+        {
+            foreach (RegistrationInPharmacy registration in RegistrationInPharmacyRepository.GetAll())
+            {
+                if (registration.Name.Equals(name)) return registration;
+            }
+            return null;
+        }
+        public RegistrationInPharmacy createIRegistration(RegistrationInPharmacyDto dto)
+        {
+            foreach (RegistrationInPharmacy registrationIRepo in IRegistrationRepository.GetAll())
+            {
+                if (registrationIRepo.ApiKey.Equals(RegistrationInPharmacyAdapter.RegistrationDtoToRegistration(dto).ApiKey)) return null;
+            }
+            return RegistrationInPharmacyAdapter.RegistrationDtoToRegistration(dto);
+        }
+        public Boolean Remove(String apiKey)
+        {
+            try{   
+                RegistrationInPharmacyRepository.Remove(apiKey);
+                return true;
+            }
+            catch{ return false; }
+        }
     }
 }

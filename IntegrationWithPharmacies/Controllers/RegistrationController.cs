@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using HealthClinic.CL.Services;
-using Class_diagram.Model.Patient;
-using HealthClinic.CL.Model.Pharmacy;
-using HealthClinic.CL.Service;
-using HealthClinic.CL.DbContextModel;
+﻿using HealthClinic.CL.DbContextModel;
 using HealthClinic.CL.Dtos;
+using HealthClinic.CL.Service;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IntegrationWithPharmacies.Controllers
 {
@@ -18,24 +9,22 @@ namespace IntegrationWithPharmacies.Controllers
     [ApiController]
     public class RegistrationController : ControllerBase
     {
-        private RegistrationInPharmacyService registrationInPharmacyService { get; set; }
-
+        private RegistrationInPharmacyService RegistrationInPharmacyService { get; set; }
         public RegistrationController(MyDbContext context)
         {
-            registrationInPharmacyService = new RegistrationInPharmacyService(context);
+            RegistrationInPharmacyService = new RegistrationInPharmacyService(context);
         }
 
-        [HttpGet]   // GET /api/registration
+        [HttpGet]  
         public IActionResult Get()
         {
-            return Ok(registrationInPharmacyService.GetAll());
+            return Ok(RegistrationInPharmacyService.GetAll());
         }
 
-        [HttpPost]      // POST /api/registration Request body: {"pharmacyId": "Some number", "apiKey": "Some api key"}
+        [HttpPost]      
         public IActionResult Post(RegistrationInPharmacyDto dto)
         {
-            if (registrationInPharmacyService.Create(dto) == null) return BadRequest();
-
+            if (RegistrationInPharmacyService.Create(dto) == null) return BadRequest();
             return Ok();
         }
 

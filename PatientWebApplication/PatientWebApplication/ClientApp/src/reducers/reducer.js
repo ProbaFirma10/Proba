@@ -13,6 +13,11 @@
     ADVANCED_SEARCH_PATIENT_APPOINTMENTS,
     LOADED_ALL_PATIENT_APPOINTMENTS,
     SURVEY_CREATED,
+    LOADED_ALL_RATES,
+    LOADED_ALL_DOCTOR_RATES,
+    LOADED_ALL_PATIENT_APPOINTMENTS_INTWODAYS,
+    LOADED_ALL_PATIENT_APPOINTMENTS_INFUTURE,
+    CANCEL_APPOINTMENT,
     LOADED_APPOINTMENTSURVEY
 } from "../types/types"
 
@@ -55,7 +60,13 @@ const initialState = {
     patientAppointments: [],
     patientAppointmentsList: [],
     appointmentSurveyList: [],
-    surveyList: []
+    surveyList: [], 
+    patientAppointments: [],
+    doctorRatesList: [],
+    patientAppointmentsInTwoDaysList: [],
+    patientAppointmentsInFutureList: [],
+    canceledAppointment: {},
+    allRates: {}
 };
 
 
@@ -146,6 +157,32 @@ function reducer(state = initialState, action) {
                 patientAppointmentsList: action.payload
 
             };
+        case LOADED_ALL_RATES:
+            debugger;
+            return {
+                ...state,
+                allRates: action.payload
+            };
+        case LOADED_ALL_DOCTOR_RATES:
+            return {
+                ...state,
+                doctorRatesList: action.payload
+            };   
+        case LOADED_ALL_PATIENT_APPOINTMENTS_INTWODAYS:
+            return {
+                ...state,
+                patientAppointmentsInTwoDaysList: action.payload
+            };
+        case LOADED_ALL_PATIENT_APPOINTMENTS_INFUTURE:
+            return {
+                ...state,
+                patientAppointmentsInFutureList: action.payload
+            };
+        case CANCEL_APPOINTMENT:
+            return {
+                ...state,
+                patientAppointmentsList: updateObjectInArray(state.patientAppointmentsList, action)
+            };        
         default:
             return state;
     }

@@ -20,10 +20,11 @@ namespace HealthClinic.CL.Repository
             this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
         }
 
-        public void New(DoctorAppointment appointment)
+        public DoctorAppointment New(DoctorAppointment appointment)
         {
             dbContext.DoctorAppointments.Add(appointment);
             dbContext.SaveChanges();
+            return appointment;
         }
 
         public void Update(DoctorAppointment appointment)
@@ -50,8 +51,19 @@ namespace HealthClinic.CL.Repository
 
         public List<DoctorAppointment> GetAppointmentsForPatient(int idPatient)
         {
-            return dbContext.DoctorAppointments.ToList().FindAll(appointment => appointment.PatientUserId == idPatient);
+            return dbContext.DoctorAppointments.ToList().FindAll(appointment => (appointment.PatientUserId == idPatient) && (!appointment.IsCanceled));
         }
 
+        public List<DoctorAppointment> GetAppointmentsForDoctor(int idDoctor)
+        {
+            return dbContext.DoctorAppointments.ToList().FindAll(appointment => appointment.DoctorUserId == idDoctor);
+        }
+
+        public DoctorAppointment CancelAppointment(DoctorAppointment appointment)
+        {
+            appointment.IsCanceled = true;
+            dbContext.SaveChanges();
+            return appointment;
+        }
     }
 }

@@ -3,34 +3,41 @@ using HealthClinic.CL.Model.Pharmacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace HealthClinic.CL.Repository
 {
     public class RegistrationInPharmacyRepository : IRegistrationInPharmacyRepository 
     {
-        private MyDbContext dbContext;
+        private MyDbContext DbContext;
 
         public RegistrationInPharmacyRepository(MyDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            DbContext = dbContext;
         }
         public RegistrationInPharmacy Create(RegistrationInPharmacy registration)
         {
-            dbContext.Registrations.Add(registration);
-            dbContext.SaveChanges();
+            DbContext.Registrations.Add(registration);
+            DbContext.SaveChanges();
             return registration;
         }
         public List<RegistrationInPharmacy> GetAll()
         {
-            return dbContext.Registrations.ToList();
+            return DbContext.Registrations.ToList();
         }
        
         public RegistrationInPharmacy getPharmacyApiKey(String apiKey)
         {
-            return dbContext.Registrations.ToList().SingleOrDefault(registration => registration.apiKey == apiKey);
+            return DbContext.Registrations.ToList().SingleOrDefault(registration => registration.ApiKey == apiKey);
+        }
+        public Boolean Remove(String apiKey)
+        {
+            try {
+                DbContext.Registrations.Remove(DbContext.Registrations.ToList().SingleOrDefault(registration => registration.ApiKey == apiKey));
+                return true;
+            }
+            catch {return false; }
         }
 
-        
+
     }
 }

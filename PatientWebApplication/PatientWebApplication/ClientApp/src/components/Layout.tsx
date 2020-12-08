@@ -13,6 +13,9 @@ import PrescriptionsAdvanced from './PrescriptionsAdvanced';
 import MyInformation from './MyInformation';
 import AppointmentsAdvanced from './AppointmentsAdvanced';
 import CreateSurvey from './CreateSurvey';
+import DoctorRates from './DoctorRates';
+import AllRates from './AllRates';
+import AllPatientsAppointments from './AllPatientsAppointments';
 
 export default (props: { children: React.ReactNode }) => (
     <React.Fragment>
@@ -29,6 +32,9 @@ export default (props: { children: React.ReactNode }) => (
             <Route path='/my-information' component={MyInformation} />
             <Route path='/appointments-advanced' component={AppointmentsAdvanced} />
             <Route path='/create-survey' component={CreateSurvey} />
+            <Route path='/rates-doctor' component={DoctorRates} />
+            <Route path='/rates-general' component={AllRates} />
+            <Route path='/my-appointments' component={AllPatientsAppointments} />
         </Container>
     </React.Fragment>
 );

@@ -26,6 +26,7 @@ namespace IntegrationWithPharmacies
 
                     webBuilder.UseStartup<Startup>()
                     .UseUrls("http://*:" + port);
+                    
                 });
 
         public static IHostBuilder CreateHostBuilderMessages(string[] args) =>

@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using HealthClinic.CL.Model.ActionsAndBenefits;
-using System;
+
 
 namespace IntegrationWithPharmacies
 {
-    public class Program
+       public class Program
     {
         public static object Messages { get; internal set; }
         public static List<Message> ListOfMessages = new List<Message>();
@@ -22,11 +22,7 @@ namespace IntegrationWithPharmacies
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    var port = Environment.GetEnvironmentVariable("PORT");
-
-                    webBuilder.UseStartup<Startup>()
-                    .UseUrls("http://*:" + port);
-                    
+                    webBuilder.UseStartup<Startup>();
                 });
 
         public static IHostBuilder CreateHostBuilderMessages(string[] args) =>

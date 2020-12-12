@@ -21,7 +21,7 @@ namespace IntegrationWithPharmacies
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>()
+                    webBuilder.UseStartup<Startup>();
                 });
 
         public static IHostBuilder CreateHostBuilderMessages(string[] args) =>

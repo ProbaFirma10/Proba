@@ -12,7 +12,7 @@ using Xunit;
 
 namespace PatientWebApplicationTests
 {
-    public class PrescriptionsSimpleSearchTests
+    public class PrescriptionsSimpleSearch
     {
         [Fact]
         public void Find_Prescriptions()

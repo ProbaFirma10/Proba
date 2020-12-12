@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HealthClinic.CL.Adapters;
-using HealthClinic.CL.DbContextModel;
 using HealthClinic.CL.Dtos;
 using HealthClinic.CL.Model.Patient;
 using HealthClinic.CL.Repository;
@@ -24,10 +23,10 @@ namespace PatientWebApplication.Controllers
         private DoctorService doctorService;
 
         /// <summary>This constructor initiates the DoctorAppointmentController's appointment service.</summary>
-        public DoctorAppointmentController(MyDbContext context)
+        public DoctorAppointmentController()
         {
-            this.regularAppointmentService = new RegularAppointmentService(context);
-            this.doctorService = new DoctorService(context);
+            this.regularAppointmentService = new RegularAppointmentService(new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository()), new PatientsRepository(), new OperationService(new OperationRepository()));
+            this.doctorService = new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository());
         }
 
         /// <summary> This method is calling <c>RegularAppointmentService</c> to get list of all appointments of one patient. </summary>
@@ -54,7 +53,7 @@ namespace PatientWebApplication.Controllers
         [HttpGet("patient")]       
         public IActionResult GetAppointmentsForPatient()
         {
-            return Ok(this.regularAppointmentService.GetAppointmentsForPatient(2)); 
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatient(1)); 
         }
 
         /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that is happening in two days. </summary>
@@ -62,7 +61,7 @@ namespace PatientWebApplication.Controllers
         [HttpGet("patientInTwoDays")]
         public IActionResult GetAppointmentsForPatientInTwoDays()
         {
-            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInTwoDays(2));
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInTwoDays(1));
         }
 
         /// <summary> This method is calling <c>regularAppointmentService</c> to get list of all <c>DoctorAppointment</c> that already happend. </summary>
@@ -70,7 +69,7 @@ namespace PatientWebApplication.Controllers
         [HttpGet("patientInFuture")]
         public IActionResult GetAppointmentsForPatientInFuture()
         {
-            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInFuture(2));
+            return Ok(this.regularAppointmentService.GetAppointmentsForPatientInFuture(1));
         }
 
         /// <summary> This method provides <paramref name="appointmentId"/> and sends it to <c>RegularAppointmentService</c> there appointment.IsCanceled will be set to true. </summary>
@@ -95,18 +94,6 @@ namespace PatientWebApplication.Controllers
             return Ok(this.regularAppointmentService.AdvancedSearchAppointments(dto));
         }
 
-        [HttpPost("recommend")]
-        public IActionResult RecommendAppointmentSchedule(RecommendedAppointmentDto dto)
-        {
-            return Ok(this.regularAppointmentService.GetRecommendedAppointment(dto));
-        }
-
-        [HttpPost("createRecommended")]
-        public IActionResult CreateRecommended(DoctorAppointment appointment)
-        {
-            return Ok(this.regularAppointmentService.CreateRecommended(appointment));
-        }
-
         [HttpPost("availableappointments")]
         public IActionResult GetAvailableAppointments(AvailableAppointmentsSearchDto dto)
         {
@@ -116,12 +103,8 @@ namespace PatientWebApplication.Controllers
         [HttpPost]
         public IActionResult Post(DoctorAppointment appointment)
         {
-            DoctorAppointment doctorAppointment = this.regularAppointmentService.CreateRegular(appointment);
-            if(doctorAppointment == null)
-            {
-                return BadRequest();
-            }
-            return Ok(doctorAppointment);
+            this.regularAppointmentService.New(appointment, null);
+            return Ok();
         }
     }
 }

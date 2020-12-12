@@ -13,20 +13,20 @@ namespace PatientWebApplication
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
-        public IWebHostEnvironment CurrentEnvironment { get; }
-
-        public Startup(IConfiguration configuration, IWebHostEnvironment currentEnvironment)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            CurrentEnvironment = currentEnvironment;
         }
+
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews()
-            .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+    .AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
             services.AddMvc(options =>
             {
@@ -37,16 +37,10 @@ namespace PatientWebApplication
                options.RegisterValidatorsFromAssemblyContaining<Startup>();
            });
 
-            if (CurrentEnvironment.IsEnvironment("Testing"))
-            {
-                services.AddDbContext<MyDbContext>(options =>
-                    options.UseInMemoryDatabase("TestingDB").UseLazyLoadingProxies());
-            }
-            else
-            {
-                services.AddDbContext<MyDbContext>(options =>
-                options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
-            }
+            
+
+            services.AddDbContext<MyDbContext>(options =>
+            options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

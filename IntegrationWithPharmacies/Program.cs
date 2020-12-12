@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using HealthClinic.CL.Model.ActionsAndBenefits;
-using System;
 
 namespace IntegrationWithPharmacies
 {
@@ -22,10 +21,7 @@ namespace IntegrationWithPharmacies
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    var port = Environment.GetEnvironmentVariable("PORT");
-
-                    webBuilder.UseStartup<Startup>()
-                    .UseUrls("http://*:" + port);
+                    webBuilder.UseStartup<Startup>();
                 });
 
         public static IHostBuilder CreateHostBuilderMessages(string[] args) =>

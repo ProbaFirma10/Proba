@@ -22,7 +22,9 @@ namespace IntegrationWithPharmacies
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    var port = Environment.GetEnvironmentVariable("PORT");
                     webBuilder.UseStartup<Startup>()
+                    .UseUrls("http://*:" + port);
                 });
 
         public static IHostBuilder CreateHostBuilderMessages(string[] args) =>

@@ -14,7 +14,7 @@ namespace HealthClinic.CL.Repository
         private readonly MyDbContext dbContext;
         public SurveyRepository()
         {
-            this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
+            this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=mysql;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
         }
        
         public Survey Add(Survey survey)

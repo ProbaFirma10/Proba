@@ -6,4 +6,5 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 WORKDIR /app
 COPY . .
+ENV ASPNETCORE_URLS http://*:$PORT
 ENTRYPOINT ["dotnet", "IntegrationWithPharmacies.dll"]

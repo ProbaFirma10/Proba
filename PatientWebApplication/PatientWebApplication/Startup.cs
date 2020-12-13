@@ -50,16 +50,16 @@ namespace PatientWebApplication
                options.RegisterValidatorsFromAssemblyContaining<Startup>();
            });
 
-            if (CurrentEnvironment.IsEnvironment("Testing"))
+            /*if (CurrentEnvironment.IsEnvironment("Testing"))
             {
                 services.AddDbContext<MyDbContext>(options =>
                     options.UseInMemoryDatabase("TestingDB").UseLazyLoadingProxies());
             }
             else
-            {
-                services.AddDbContext<MyDbContext>(options =>
-                options.UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies());
-            }
+            {*/
+            services.AddDbContext<MyDbContext>(options =>
+            options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
+            //}
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -69,8 +69,9 @@ namespace PatientWebApplication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,DbContext db)
         {
+            db.Database.EnsureCreated();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

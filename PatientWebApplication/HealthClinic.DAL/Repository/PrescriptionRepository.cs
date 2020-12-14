@@ -18,7 +18,7 @@ namespace HealthClinic.CL.Repository
         /// <summary>This constructor injects the PrescriptionRepository with provided <paramref name="dbContext"/>.</summary>
          public PrescriptionRepository()
         {
-            var options = new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=mysql;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options;
+            var options = new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options;
             this.dbContext = new MyDbContext(options);
         }
 

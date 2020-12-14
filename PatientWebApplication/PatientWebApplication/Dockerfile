@@ -3,5 +3,5 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 WORKDIR /app
 COPY . .
-VOLUME /app/sql
-ENTRYPOINT ["dotnet", "PatientWebApplication.dll"]
+EXPOSE 80
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet PatientWebApplication.dll

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PatientWebApplication.Validators;
-using System;
 
 namespace PatientWebApplication
 {
@@ -21,18 +20,6 @@ namespace PatientWebApplication
         {
             Configuration = configuration;
             CurrentEnvironment = currentEnvironment;
-        }
-
-        private string CreateConnectionStringFromEnvironment()
-        {
-            string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "mysql";
-            string port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
-            string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "MYSQLHealtcareDB";
-            string user = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "root";
-            string password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "root";
-            
-
-            return $"server={server};port={port};database={database};user={user};password={password};";
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -50,16 +37,16 @@ namespace PatientWebApplication
                options.RegisterValidatorsFromAssemblyContaining<Startup>();
            });
 
-            /*if (CurrentEnvironment.IsEnvironment("Testing"))
+            if (CurrentEnvironment.IsEnvironment("Testing"))
             {
                 services.AddDbContext<MyDbContext>(options =>
                     options.UseInMemoryDatabase("TestingDB").UseLazyLoadingProxies());
             }
             else
-            {*/
-            services.AddDbContext<MyDbContext>(options =>
-            options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
-            //}
+            {
+                services.AddDbContext<MyDbContext>(options =>
+                options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
+            }
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -69,9 +56,8 @@ namespace PatientWebApplication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,DbContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            db.Database.EnsureCreated();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

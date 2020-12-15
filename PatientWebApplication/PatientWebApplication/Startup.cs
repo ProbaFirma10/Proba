@@ -64,8 +64,9 @@ namespace PatientWebApplication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,DbContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            DbContext db = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies().Options);
             db.Database.EnsureCreated();
             if (env.IsDevelopment())
             {

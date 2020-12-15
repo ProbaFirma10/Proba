@@ -13,7 +13,6 @@ type CounterProps =
     RouteComponentProps<{}>;
 
 class Counter extends React.PureComponent<CounterProps> {
-
     public render() {
         return (
             <React.Fragment>

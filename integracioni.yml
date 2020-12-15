@@ -1,0 +1,81 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+
+- task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: '4.4.1'
+    checkLatest: true
+
+- task: NuGetCommand@2
+  displayName: Nuget Restore
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+
+- task: Bash@3
+  displayName: Restore
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker --version
+      cd IntegrationWithPharmacies
+      dotnet restore IntegrationWithPharmacies.csproj
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'proba'
+    organization: 'probafirma10'
+    scannerMode: 'MSBuild'
+    projectKey: 'ProbaFirma10_Proba'
+    projectName: 'Proba'
+
+- task: MSBuild@1
+  displayName: Build
+  inputs:
+    solution: '**/IntegrationWithPharmacies.csproj'
+
+
+- task: MSBuild@1
+  displayName: Build
+  inputs:
+    solution: '**/IntegrationWithPharmaciesTest.csproj'
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\bin\Debug\netcoreapp3.1\IntegrationWithPharmaciesTest.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+
+- task: SonarCloudAnalyze@1
+
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
+
+    
+- task: Bash@3
+  displayName: Publish
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker --version
+      cd IntegrationWithPharmacies
+      dotnet publish IntegrationWithPharmacies.csproj -c Release -o publish
+      cp Dockerfile publish
+      

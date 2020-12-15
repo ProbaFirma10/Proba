@@ -17,7 +17,6 @@ import AppointmentsAdvanced from './components/AppointmentsAdvanced';
 import CreateSurvey from './components/CreateSurvey';
 import DoctorRates from './components/DoctorRates';
 import AllRates from './components/AllRates';
-import ChooseAppointmentType from './components/ChooseAppointmentType';
 import AllPatientsAppointments from './components/AllPatientsAppointments';
 
 export default () => (
@@ -35,7 +34,6 @@ export default () => (
         <Route path='/create-survey' component={CreateSurvey} />
         <Route path='/rates-doctor' component={DoctorRates} />
         <Route path='/rates-general' component={AllRates} />
-        <Route path='/choose-appointment-type' component={ChooseAppointmentType} />
         <Route path='/my-appointments' component={AllPatientsAppointments} />
     </Layout>
 );

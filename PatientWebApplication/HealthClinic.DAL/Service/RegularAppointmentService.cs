@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using HealthClinic.CL.Utility;
 using System.Linq;
-using HealthClinic.CL.DbContextModel;
 
 namespace HealthClinic.CL.Service
 {
@@ -38,15 +37,6 @@ namespace HealthClinic.CL.Service
             this.operationService = operationService;
         }
 
-        public RegularAppointmentService(MyDbContext context)
-        {
-            this._appointmentRepository = new AppointmentRepository(context);
-            this._patientRepository = new PatientsRepository(context);
-            this.operationService = new OperationService(new OperationRepository(context));
-            this.employeesScheduleService = new EmployeesScheduleService(new EmployeesScheduleRepository(context));
-            this.doctorService = new DoctorService(new OperationRepository(context), _appointmentRepository, new EmployeesScheduleRepository(context), new DoctorRepository(context));
-        }
-
         /// <summary> This method is calling <c>AppointmentRepository</c> to get list of all appointments. </summary>
         /// <returns> List of all appointments. </returns>
         public List<DoctorAppointment> GetAll()
@@ -61,23 +51,6 @@ namespace HealthClinic.CL.Service
         {
             if (!GetAllAvailableAppointmentsForDate(appointment.Date, appointment.DoctorUserId, appointment.PatientUserId).Contains(appointment)) return;
             _appointmentRepository.New(appointment);
-        }
-
-
-        /// <summary> This method is calling <c>AppointmentRepository</c> to create new appointment. </summary>
-        /// <param name="appointment"><c>appointment</c> is appointment we want to create.</param>
-        /// <returns> Created appointment. </returns>
-        public DoctorAppointment CreateRecommended(DoctorAppointment appointment)
-        {
-            return _appointmentRepository.Create(appointment);
-        }
-
-        public DoctorAppointment CreateRegular(DoctorAppointment appointment)
-        {
-            var appointments = GetAllAvailableAppointmentsForDate(appointment.Date, appointment.DoctorUserId, appointment.PatientUserId);
-            if (!appointments.Contains(appointment)) return null;
-            return _appointmentRepository.New(appointment);
-
         }
 
         /// <summary> This method is calling <c>AppointmentRepository</c> to update appointment. </summary>
@@ -133,142 +106,48 @@ namespace HealthClinic.CL.Service
             return _appointmentRepository.GetAppointmentsForDoctor(id);
         }
 
-        /// <summary> This method is getting List of <c>DoctorAppointment</c> that matches recoomended filters </summary>
-        /// <param name="dto"><c>RecommendedAppointmentDto</c> is Data Transfer Object that is being used to get Recommended Appointments</param>
-        /// <returns> List of recommended appointments</returns>
-        public List<DoctorAppointment> GetRecommendedAppointment(RecommendedAppointmentDto dto)
-        {
-            DoctorUser doctor = doctorService.GetByid(dto.DoctorId);
-            DateTime startDate = UtilityMethods.ParseDateInCorrectFormat(dto.Start);
-            DateTime endDate = UtilityMethods.ParseDateInCorrectFormat(dto.End);
-            PatientUser patient = _patientRepository.Find(2); //still no login, change after login, id set to 1
-            List<DoctorAppointment> recomendedAppointments = GetAllAvailableAppointmentsForRecommendedDates(dto.DoctorId, startDate, endDate, patient.id);
-
-            if (!recomendedAppointments.Any())
-            {
-                if (dto.Priority.Equals("doctor"))
-                {
-                    endDate = (endDate - startDate).TotalDays > 20 ? endDate.AddDays(10) : (endDate - startDate).TotalDays > 10 ? endDate.AddDays(5) : endDate.AddDays(3);
-
-                    recomendedAppointments = GetAllAvailableAppointmentsForRecommendedDates(dto.DoctorId, startDate, endDate, patient.id);
-                }
-                else
-                {
-                    recomendedAppointments = RecommenedAnAppointmentDatePriority(startDate, endDate, patient, doctor.speciality);
-                }
-            }
-
-            return recomendedAppointments;
-        }
-
-        public DoctorAppointment RecommendAnAppointment(DoctorUser doctor, DateTime startDate, DateTime endDate, PatientUser patient)
+        public DoctorAppointment RecommendAnAppointment(DoctorUser doctor, DateTime date1, DateTime date2, PatientUser patient)
         {
             TimeSpan time1 = TimeSpan.FromMinutes(15);
-
-            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            for (var date = date1; date <= date2; date = date.AddDays(1))
             {
-                if (GetAvailableTerm(doctor, date, time1, patient) != null) return GetAvailableTerm(doctor, date, time1, patient);
+                if (getAvailableTerm(doctor, date, time1, patient) != null) return getAvailableTerm(doctor, date, time1, patient);
             }
             return null;
         }
-
-        /// <summary> This method is getting List of <c>DoctorAppointment</c> when doctor and patient are available </summary>
-        /// <param name="doctorId"><c>DoctorUser</c> id of doctor who will execute appointment</param>
-        /// <param name="startDate">From which date we want to get recommended appointment</param>
-        /// <param name="endDate">To which date we want to get recommended appointment</param>
-        /// <param name="patientId"><c>PatientUser</c> id of patient that is scheduling appointment</param>
-        /// <returns> List of recommended appointments</returns>
-        public List<DoctorAppointment> GetAllAvailableAppointmentsForRecommendedDates(int doctorId, DateTime startDate, DateTime endDate, int patientId)
-        {
-            List<DoctorAppointment> availableAppointments = new List<DoctorAppointment>();
-            for (var date = startDate; date <= endDate; date = date.AddDays(1))
-            {
-                List<TimeSpan> startTimesAppointments = GetAllStartTimes(CreateAppointmentSetForDate(date, doctorId, patientId).ToList());
-                List<Operation> operations = operationService.CreateOperationtSetForDate(date, doctorId, patientId).ToList();
-                Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(MakeStringFromDate(date), doctorService.GetByid(doctorId));
-                if (doctorShift == null)
-                {
-                    continue;
-                }
-                
-                TimeSpan time = TimeSpan.Parse(doctorShift.startTime);
-
-                availableAppointments = GetAvailableForFreeTime(time, availableAppointments, doctorShift, doctorId, date, patientId, startTimesAppointments, operations);
-        
-            }
-
-            return availableAppointments;
-        }
-
-        private List<DoctorAppointment> GetAvailableForFreeTime(TimeSpan time, List<DoctorAppointment> availableAppointments, Shift doctorShift, int doctorId, DateTime date, int patientId, List<TimeSpan> startTimesAppointments, List<Operation> operations)
-        {
-            while (time != TimeSpan.Parse(doctorShift.endTime) && availableAppointments.Count < 5)
-            {
-                availableAppointments = GetListAvailableAppointments(availableAppointments, doctorId, time, date, patientId, startTimesAppointments, operations);
-
-                time = time.Add(TimeSpan.FromMinutes(15));
-            }
-            return availableAppointments;
-        }
-
-        private List<DoctorAppointment> GetListAvailableAppointments(List<DoctorAppointment> availableAppointments, int doctorId, TimeSpan time, DateTime date, int patientId, List<TimeSpan> startTimesAppointments, List<Operation> operations)
-        {
-            if ((!startTimesAppointments.Contains(time) && !operationService.IsOperationInTimePeriod(time, operations)) || availableAppointments.Count >= 5)
-            {
-                availableAppointments.Add((new DoctorAppointment(0, time, MakeStringFromDate(date), _patientRepository.Find(patientId), doctorService.GetByid(doctorId), new List<Referral>(), doctorService.GetByid(doctorId).ordination)));
-            }
-
-            return availableAppointments;
-        }
-
-        /// <summary> This method is getting all appointments of one doctor on given date. </summary>
-        /// <returns> list of all doctor's appointments on specific date. </returns>
         private List<DoctorAppointment> GetAllAppointmentsByDateAndDoctor(DateTime date, int doctorId)
         {
-            return GetAppointmentsForDoctor(doctorId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date) && !appointment.IsCanceled)).ToList();
+            return GetAppointmentsForDoctor(doctorId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date))).ToList();
         }
 
-        /// <summary> This method is getting all appointments of one patient on given date. </summary>
-        /// <returns> list of all patients's appointments on specific date. </returns>
         private List<DoctorAppointment> GetAllAppointmentsByDateAndPatient(DateTime date, int patientId)
         {
-            return GetAppointmentsForPatient(patientId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date) && !appointment.IsCanceled)).ToList();
+            return GetAppointmentsForPatient(patientId).Where(appointment => (date == UtilityMethods.ParseDateInCorrectFormat(appointment.Date))).ToList();
         }
 
-        private DoctorAppointment GetAvailableTerm(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient)
+        private DoctorAppointment getAvailableTerm(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient)
         {
-            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(MakeStringFromDate(date), doctor);
+            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(makeStringFromDate(date), doctor);
 
             if (doctorShift != null && doctorShift.startTime != null && doctorShift.endTime != null)
-                return GetNewDoctorAppointment(doctor, date, time1, patient, doctorShift);
+                return getNewDoctorAppointment(doctor, date, time1, patient, doctorShift);
 
             return null;
         }
 
-        /// <summary> This method is getting all available appointments of one doctor and one patient on given date. </summary>
-        /// <param name="dateString">Date for which this method get's all available appointments</param>
-        /// <param name="doctorId">Id of doctor for whom this method get's all available appointments</param>
-        /// <param name="patientId">Id of patient for whom this method get's all available appointments</param>
-        /// <returns> list of all available appointments on specific date for given doctor and patient. </returns>
         public List<DoctorAppointment> GetAllAvailableAppointmentsForDate(string dateString, int doctorId, int patientId)
         {
-            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(dateString, doctorService.GetByid(doctorId));
-            if (doctorShift == null)
-            {
-                return new List<DoctorAppointment>(); 
-            }
             DateTime date = UtilityMethods.ParseDateInCorrectFormat(dateString);
+            List<DoctorAppointment> availableAppointments = new List<DoctorAppointment>();
             List<TimeSpan> startTimesAppointments = GetAllStartTimes(CreateAppointmentSetForDate(date, doctorId, patientId).ToList());
             List<Operation> operations = operationService.CreateOperationtSetForDate(date, doctorId, patientId).ToList();
-            return CreateListOfAvailableAppointments(doctorShift, operations, startTimesAppointments, dateString, doctorId, patientId);
-        }
-
-        private List<DoctorAppointment> CreateListOfAvailableAppointments(Shift doctorShift, List<Operation> operations, List<TimeSpan> startTimesAppointments, string dateString, int doctorId, int patientId)
-        {
-            List<DoctorAppointment> availableAppointments = new List<DoctorAppointment>();
-            TimeSpan time = TimeSpan.Parse(doctorShift.startTime);
-            while (time != TimeSpan.Parse(doctorShift.endTime))
+            Shift doctorShift = employeesScheduleService.getShiftForDoctorForSpecificDay(dateString, doctorService.GetByid(doctorId));
+            if(doctorShift == null)
             {
+                return availableAppointments;
+            }
+            TimeSpan time = TimeSpan.Parse(doctorShift.startTime);
+            while (time != TimeSpan.Parse(doctorShift.endTime)){
                 if (!startTimesAppointments.Contains(time) && !operationService.IsOperationInTimePeriod(time, operations))
                 {
                     availableAppointments.Add(new DoctorAppointment(0, time, dateString, patientId, doctorId, new List<Referral>(), doctorService.GetByid(doctorId).ordination));
@@ -278,8 +157,6 @@ namespace HealthClinic.CL.Service
             return availableAppointments;
         }
 
-        /// <summary> This method is creating a set out of list of doctor's and patient's apaintments on specific date. </summary>
-        /// <returns> <c>HashSet</c> of appointments. </returns>
         private HashSet<DoctorAppointment> CreateAppointmentSetForDate(DateTime date, int doctorId, int patientId)
         {
             HashSet<DoctorAppointment> appointmentsSet = new HashSet<DoctorAppointment>(GetAllAppointmentsByDateAndDoctor(date, doctorId));
@@ -287,91 +164,78 @@ namespace HealthClinic.CL.Service
             return appointmentsSet;
         }
 
-        /// <summary> This method is getting List of Start Times of already scheduled <c>DoctorAppointment</c> </summary>
-        /// <param name="appointments">List of <c>DoctorAppointment</c> that are already scheduled</param>
-        /// <returns> List of start times for scheduled appointments</returns>
         private List<TimeSpan> GetAllStartTimes(List<DoctorAppointment> appointments)
         {
             List <TimeSpan> startTimes = new List<TimeSpan>();
             foreach (DoctorAppointment appointment in appointments)
             {
-                if (!appointment.IsCanceled)
-                {
-                    startTimes.Add(appointment.Start);
-                }
+                startTimes.Add(appointment.Start);
             }
             return startTimes;
         }
 
-        private DoctorAppointment GetNewDoctorAppointment(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient, Shift doctorShift)
+        private DoctorAppointment getNewDoctorAppointment(DoctorUser doctor, DateTime date, TimeSpan time1, PatientUser patient, Shift doctorShift)
         {
-            for (var time = GetStartTimeSpan(doctorShift); time < GetEndTimeSpan(doctorShift); time = time.Add(time1))
+            for (var time = getStartTimeSpan(doctorShift); time <= getEndTimeSpan(doctorShift); time = time.Add(time1))
             {
-                if (IsTermNotAvailable(doctor, time, MakeStringFromDate(date), patient) == false)
+                if (isTermNotAvailable(doctor, time, makeStringFromDate(date), patient) == false)
                 {
-                    return new DoctorAppointment(0, time, MakeStringFromDate(date), patient, doctor, null, doctor.ordination);
+                    return new DoctorAppointment(0, time, makeStringFromDate(date), patient, doctor, null, doctor.ordination);
                 }
             }
             return null;
         }
 
-        private string MakeStringFromDate(DateTime date)
+        private string makeStringFromDate(DateTime date)
         {
             return date.ToString("dd/MM/yyyy");
         }
 
-        private TimeSpan GetStartTimeSpan(Shift doctorShift)
+        private TimeSpan getStartTimeSpan(Shift doctorShift)
         {
-            return new TimeSpan(GetHourStart(doctorShift), GetMinutesStart(doctorShift), int.Parse("00"));
+            return new TimeSpan(getHourStart(doctorShift), getMinutesStart(doctorShift), int.Parse("00"));
         }
 
-        private TimeSpan GetEndTimeSpan(Shift doctorShift)
+        private TimeSpan getEndTimeSpan(Shift doctorShift)
         {
-            return new TimeSpan(GetHourEnd(doctorShift), GetMinutesEnd(doctorShift), int.Parse("00"));
+            return new TimeSpan(getHourEnd(doctorShift), getMinutesEnd(doctorShift), int.Parse("00"));
         }
-        private int GetHourStart(Shift doctorShift)
+        private int getHourStart(Shift doctorShift)
         {
             String[] partsBegin = doctorShift.startTime.Split(':');
             return int.Parse(partsBegin[0]);
         }
 
-        private int GetMinutesStart(Shift doctorShift)
+        private int getMinutesStart(Shift doctorShift)
         {
             String[] partsBegin = doctorShift.startTime.Split(':');
             return int.Parse(partsBegin[1]);
         }
-        private int GetHourEnd(Shift doctorShift)
+        private int getHourEnd(Shift doctorShift)
         {
             String[] partsEnd = doctorShift.endTime.Split(':');
             return int.Parse(partsEnd[0]);
         }
 
-        private int GetMinutesEnd(Shift doctorShift)
+        private int getMinutesEnd(Shift doctorShift)
         {
             String[] partsEnd = doctorShift.endTime.Split(':');
             return int.Parse(partsEnd[1]);
         }
 
-        /// <summary> This method is getting List of <c>DoctorAppointment</c> when priority is date </summary>
-        /// <param name="startDate">From which date we want to get recommended appointment</param>
-        /// <param name="endDate">To which date we want to get recommended appointment</param>
-        /// <param name="patient"><c>PatientUser</c> who is scheduling appointment</param>
-        /// <param name="speciality">Speciality of doctor which patient wanted first to execute appointment</param>
-        /// <returns>List of <c>DoctorAppointment</c></returns>
-        public List<DoctorAppointment> RecommenedAnAppointmentDatePriority(DateTime startDate, DateTime endDate, PatientUser patient, string speciality)
+        public DoctorAppointment recommenedAnAppointmentDatePriority(DateTime date1, DateTime date2, PatientUser patient)
         {
             List<DoctorUser> doctorsList = doctorService.GetAll();
-            List<DoctorAppointment> appointments = new List<DoctorAppointment>();
 
             foreach (DoctorUser doctor in doctorsList)
             {
-                if (doctor.speciality.Equals(speciality) && GetAllAvailableAppointmentsForRecommendedDates(doctor.id, startDate, endDate, patient.id).Any())
-                    return GetAllAvailableAppointmentsForRecommendedDates(doctor.id, startDate, endDate, patient.id);
+                if (doctor.isSpecialist == false && RecommendAnAppointment(doctor, date1, date2, patient) != null)
+                    return RecommendAnAppointment(doctor, date1, date2, patient);
             }
-            return appointments;
+            return null;
         }
 
-        public Boolean IsTermNotAvailable(DoctorUser doctor, TimeSpan time, String dateToString, PatientUser patient)
+        public Boolean isTermNotAvailable(DoctorUser doctor, TimeSpan time, String dateToString, PatientUser patient)
         {
             Boolean hasAppointmentDoctor = doctorService.DoesDoctorHaveAnAppointmentAtSpecificTime(doctor, time, dateToString);
             Boolean hasOperationDoctor = doctorService.DoesDoctorHaveAnOperationAtSpecificTime(doctor, time, dateToString);

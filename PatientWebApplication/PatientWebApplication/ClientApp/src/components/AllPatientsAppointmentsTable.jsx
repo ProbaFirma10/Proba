@@ -56,7 +56,6 @@ class AllPatientsAppointmentsTable extends Component {
                             <th style={{ textAlign: "left" }}>Doctor</th>
                             <th style={{ textAlign: "center" }}>Type</th>
                             <th style={{ textAlign: "center" }}>Date</th>
-                            <th style={{ textAlign: "center" }}>Time</th>
                             <th style={{ textAlign: "center" }}></th>
                             <th style={{ textAlign: "center" }}></th>
                         </tr>
@@ -67,8 +66,7 @@ class AllPatientsAppointmentsTable extends Component {
                                 <td style={{ textAlign: "left" }} >{f.doctor.firstName + ' ' + f.doctor.secondName}</td>
                                 <td style={{ textAlign: "center" }} > {this.checkType(f)}</td >
                                 <td style={{ textAlign: "center" }}>{f.date}</td >
-                                <td style={{ textAlign: "center" }}>{f.start}</td >
-                                <td style={{ textAlign: "right" }}><button disabled={f.referral.length == 0} onClick={() => { this.displayModal(f) }} className="btn btn-primary">Details</button></td >
+                                <td style={{ textAlign: "right" }}><button onClick={() => { this.displayModal(f) }} className="btn btn-primary">Details</button></td >
                                 <td style={{ textAlign: "right" }}><button onClick={() => this.fillSurvey(f)} className="btn btn-primary">Fill Survey</button></td >
                             </tr>
                         </tbody>
@@ -79,8 +77,7 @@ class AllPatientsAppointmentsTable extends Component {
                                 <td style={{ textAlign: "left" }} >{f.doctor.firstName + ' ' + f.doctor.secondName}</td>
                                 <td style={{ textAlign: "center" }} > {this.checkType(f)}</td >
                                 <td style={{ textAlign: "center" }}>{f.date}</td >
-                                <td style={{ textAlign: "center" }}>{f.start}</td >
-                                <td style={{ textAlign: "right" }}><button disabled={f.referral.length == 0} onClick={() => { this.displayModal(f) }} className="btn btn-primary">Details</button></td >
+                                <td style={{ textAlign: "right" }}><button onClick={() => { this.displayModal(f) }} className="btn btn-primary">Details</button></td >
                                 <td style={{ textAlign: "right" }}><button disabled={true} className="btn btn-primary">Fill Survey</button></td >
                             </tr>
                         </tbody>
@@ -91,7 +88,6 @@ class AllPatientsAppointmentsTable extends Component {
                                 <td style={{ textAlign: "left" }} >{f.doctor.firstName + ' ' + f.doctor.secondName}</td>
                                 <td style={{ textAlign: "center" }} > {this.checkType(f)}</td >
                                 <td style={{ textAlign: "center" }}>{f.date}</td >
-                                <td style={{ textAlign: "center" }}>{f.start}</td >
                                 <td style={{ textAlign: "right" }}><button disabled={true} className="btn btn-primary">Cancel</button></td >
                                 <td style={{ textAlign: "right" }}><button disabled={true} className="btn btn-primary">Fill Survey</button></td >
                             </tr>
@@ -103,7 +99,6 @@ class AllPatientsAppointmentsTable extends Component {
                                 <td style={{ textAlign: "left" }} >{f.doctor.firstName + ' ' + f.doctor.secondName}</td>
                                 <td style={{ textAlign: "center" }} > {this.checkType(f)}</td >
                                 <td style={{ textAlign: "center" }}>{f.date}</td >
-                                <td style={{ textAlign: "center" }}>{f.start}</td >
                                 <td style={{ textAlign: "right" }}><CancelAppointmentButton appointment={f}> </CancelAppointmentButton></td >
                                 <td style={{ textAlign: "right" }}><button disabled={true} className="btn btn-primary">Fill Survey</button></td >
                             </tr>

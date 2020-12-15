@@ -22,17 +22,17 @@ namespace PatientWebApplication
         public IConfiguration Configuration { get; }
 
 
-        private string CreateConnectionStringFromEnvironment()
+       /* private string CreateConnectionStringFromEnvironment()
         {
             string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
             string port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
-            string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "MYSQLHealtcareDB";
+            string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "demo";
             string user = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "root";
             string password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "root";
 
 
             return $"server={server};port={port};database={database};user={user};password={password};";
-        }
+        }*/
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -54,7 +54,7 @@ namespace PatientWebApplication
             
 
             services.AddDbContext<MyDbContext>(options =>
-            options.UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies());
+            options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -64,9 +64,8 @@ namespace PatientWebApplication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,DbContext db)
         {
-            DbContext db = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies().Options);
             db.Database.EnsureCreated();
             if (env.IsDevelopment())
             {

@@ -1,0 +1,44 @@
+version: '3.1'
+services:
+
+  web:
+    image: nemanja0505/probafirma10:patientwebappliacation_latest
+    container_name: web
+    restart: on-failure
+    networks:
+      - demo
+    environment:
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
+      DATABASE_HOST: mysql
+      DATABASE_SCHEMA: MYSQLHealtcareDB
+    ports:
+      - "60198:80"
+    depends_on:
+      - mysql
+    volumes:
+      - web:/app/sql
+
+  mysql:
+    image: mysql:8.0.19
+    container_name: mysql
+    restart: always
+    networks:
+      - demo
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: MYSQLHealtcareDB
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+  web:  
+
+networks:
+  demo:
+    name: demo
+    driver: bridge
+    

@@ -56,9 +56,9 @@ namespace PatientWebApplication
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DbContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            db.Database.EnsureCreated();
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

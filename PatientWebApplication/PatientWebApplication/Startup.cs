@@ -9,7 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PatientWebApplication.Validators;
 using System;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2732af6d25eb11611c922e0bb490c9225be29179
 namespace PatientWebApplication
 {
     public class Startup
@@ -51,16 +54,20 @@ namespace PatientWebApplication
                options.RegisterValidatorsFromAssemblyContaining<Startup>();
            });
 
-            /*if (CurrentEnvironment.IsEnvironment("Testing"))
+            if (CurrentEnvironment.IsEnvironment("Testing"))
             {
                 services.AddDbContext<MyDbContext>(options =>
                     options.UseInMemoryDatabase("TestingDB").UseLazyLoadingProxies());
             }
             else
-            {*/
+            {
                 services.AddDbContext<MyDbContext>(options =>
                 options.UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies());
+<<<<<<< HEAD
             //}
+=======
+            }
+>>>>>>> 2732af6d25eb11611c922e0bb490c9225be29179
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -68,6 +75,20 @@ namespace PatientWebApplication
                 configuration.RootPath = "ClientApp/build";
             });
         }
+
+        private string CreateConnectionStringFromEnvironment()
+        {
+            string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
+            string port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
+            string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "MYSQLHealtcareDB";
+            string user = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "root";
+            string password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "root";
+
+
+            return $"server={server};port={port};database={database};user={user};password={password};";
+        }
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

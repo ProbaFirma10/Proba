@@ -9,10 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PatientWebApplication.Validators;
 using System;
-<<<<<<< HEAD
+using System.Threading;
 
-=======
->>>>>>> 2732af6d25eb11611c922e0bb490c9225be29179
 namespace PatientWebApplication
 {
     public class Startup
@@ -26,22 +24,10 @@ namespace PatientWebApplication
             CurrentEnvironment = currentEnvironment;
         }
 
-        private string CreateConnectionStringFromEnvironment()
-        {
-            string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
-            string port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
-            string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "MYSQLHealtcareDB";
-            string user = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "root";
-            string password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "root";
-
-
-            return $"server={server};port={port};database={database};user={user};password={password};";
-        }
-
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Thread.Sleep(3000);
             services.AddControllersWithViews()
             .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
@@ -63,11 +49,7 @@ namespace PatientWebApplication
             {
                 services.AddDbContext<MyDbContext>(options =>
                 options.UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies());
-<<<<<<< HEAD
-            //}
-=======
             }
->>>>>>> 2732af6d25eb11611c922e0bb490c9225be29179
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -78,22 +60,25 @@ namespace PatientWebApplication
 
         private string CreateConnectionStringFromEnvironment()
         {
-            string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
+            string server = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "mysql";
             string port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
             string database = Environment.GetEnvironmentVariable("DATABASE_SCHEMA") ?? "MYSQLHealtcareDB";
             string user = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "root";
             string password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "root";
 
 
-            return $"server={server};port={port};database={database};user={user};password={password};";
+            return $"server={server};port={port};database={database};user={user};password={password}";
         }
 
 
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MyDbContext dbContext)
         {
-            
+            // MyDbContext dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql(CreateConnectionStringFromEnvironment()).UseLazyLoadingProxies().Options);
+          
+
+            dbContext.Database.EnsureCreated();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -107,6 +92,9 @@ namespace PatientWebApplication
             //app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization(); // Add it here
 
             app.UseEndpoints(endpoints =>
             {

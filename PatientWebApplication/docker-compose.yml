@@ -5,7 +5,7 @@ services:
     build: 
       context: ./PatientWebApplication
       dockerfile: Dockerfile
-    image: proba123:latest
+    image: tamarareklanovoime4:latest
     container_name: web
     restart: on-failure
     networks:
@@ -16,7 +16,7 @@ services:
       DATABASE_HOST: mysql
       DATABASE_SCHEMA: MYSQLHealtcareDB
     ports:
-      - 60198:80
+      - 8080:80
     depends_on:
       - mysql
     volumes:
@@ -33,6 +33,8 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: MYSQLHealtcareDB
+    ports:
+      - 3306:3306
     volumes:
       - mysql-data:/var/lib/mysql
 

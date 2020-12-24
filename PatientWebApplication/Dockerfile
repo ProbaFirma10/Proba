@@ -18,21 +18,21 @@ WORKDIR "/src/PatientWebApplication/"
 COPY package.json ./
 COPY package-lock.json ./
 
-RUN npm install react-toastify
-RUN npm install react-transition-group
-RUN npm install  regenerator-runtime
-RUN npm install  react-stepper-horizontal
-RUN npm install  react-datepicker
-RUN npm install  react-is
-RUN npm install  prop-types
-RUN npm install  object-assign
-RUN npm install  loose-envify
-RUN npm install  js-tokens
-RUN npm install  follow-redirects
-RUN npm install  dom-helpers
-RUN npm install  csstype
-RUN npm install  clsx
-RUN npm install  axios
+RUN npm install react-toastify \
+    react-transition-group \
+    regenerator-runtime \
+    react-stepper-horizontal \
+    react-datepicker \
+    react-is \
+    prop-types \
+    object-assign \
+    loose-envify \
+    js-tokens \
+    follow-redirects \
+    dom-helpers \
+    csstype \
+    clsx \
+    axios
 
 RUN dotnet build "PatientWebApplication.csproj" -c Release -o /app/build
 

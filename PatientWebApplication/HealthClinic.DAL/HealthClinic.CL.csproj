@@ -5,8 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\Spft\**" />
     <Compile Remove="wwwroot\**" />
+    <EmbeddedResource Remove="Model\Spft\**" />
     <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="Model\Spft\**" />
     <None Remove="wwwroot\**" />
   </ItemGroup>
 

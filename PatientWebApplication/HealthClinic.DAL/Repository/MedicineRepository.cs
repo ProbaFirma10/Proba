@@ -8,23 +8,26 @@ using System.Collections.Generic;
 using System.Linq;
 using HealthClinic.CL.DbContextModel;
 using HealthClinic.CL.Model.Hospital;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthClinic.CL.Repository
 {
     public class MedicineRepository : GenericFileRepository<Medicine>
    {
-        private MyDbContext DbContext;
-        public MedicineRepository(string filePath) : base(filePath)  { }
+      private readonly MyDbContext dbContext;
+      public MedicineRepository(MyDbContext dbContext)
+      {
+         this.dbContext = dbContext;
+      }
+      public MedicineRepository()
+      {
+         this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
+      }
+      public MedicineRepository(string filePath) : base(filePath)  { }
 
-        public MedicineRepository() : base() { }
-
-        public MedicineRepository(MyDbContext dbContext)
-        {
-            DbContext = dbContext;
-        }
-        public List<Medicine> GetAll()
-        {
-            return DbContext.Medicines.ToList();
-        }
+      public List<Medicine> GetAll()
+      {
+         return dbContext.Medicines.ToList();
+      }
     }
 }

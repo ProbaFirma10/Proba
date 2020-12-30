@@ -33,8 +33,13 @@ namespace HealthClinic.CL.Service
         String path4 = bingPathToAppDir(@"JsonFiles\appointments.json");
         String path5 = bingPathToAppDir(@"JsonFiles\schedule.json");
 
+      private IDoctorRepository DoctorRepository { get; set; }
 
-        public DoctorService(IOperationRepository operationRepository, IAppointmentRepository appointmentRepository, IEmployeesScheduleRepository employeesScheduleRepository, IDoctorRepository doctorRepository)
+      public DoctorService(IDoctorRepository doctorRepository)
+      {
+            DoctorRepository = doctorRepository;
+      }
+      public DoctorService(IOperationRepository operationRepository, IAppointmentRepository appointmentRepository, IEmployeesScheduleRepository employeesScheduleRepository, IDoctorRepository doctorRepository)
         {
             this._doctorRepository = doctorRepository;
             this._operationRepository = operationRepository;

@@ -13,18 +13,20 @@ namespace HealthClinic.CL.Repository
     public class PrescriptionRepository : IPrescriptionRepository
     {
         /// <summary>Instance variable <c>dbContext</c> represents the object that works with MYSQL database data.  </summary>
-        private readonly MyDbContext dbContext;
-
-        /// <summary>This constructor injects the PrescriptionRepository with provided <paramref name="dbContext"/>.</summary>
+         private readonly MyDbContext dbContext;
+         public PrescriptionRepository(MyDbContext dbContext)
+         {
+            this.dbContext = dbContext;
+         }
+         /// <summary>This constructor injects the PrescriptionRepository with provided <paramref name="dbContext"/>.</summary>
          public PrescriptionRepository()
-        {
-            var options = new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options;
-            this.dbContext = new MyDbContext(options);
-        }
+         {
+             this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
+         }
 
-        /// <summary> This is method gets all <c>Prescription</c>. </summary>
-        /// <returns> List of all prescriptions from database. </returns>
-        public List<Prescription> GetAll()
+      /// <summary> This is method gets all <c>Prescription</c>. </summary>
+      /// <returns> List of all prescriptions from database. </returns>
+      public List<Prescription> GetAll()
         {
             return dbContext.Prescriptions.ToList();
         }

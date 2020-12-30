@@ -25,9 +25,9 @@ namespace PatientWebApplication.Controllers
         private IWebHostEnvironment _env;
         private RegularAppointmentService regularAppointmentService { get; set; }
         /// <summary>This constructor injects the PatientUserController with matching PatientService.</summary>
-        public PatientUserController(IWebHostEnvironment env)
+        public PatientUserController(IWebHostEnvironment env,MyDbContext dbContext)
         {
-            PatientService = new PatientService(new PatientsRepository(), new EmailVerificationService(), new RegularAppointmentService(new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository()), new PatientsRepository(), new OperationService(new OperationRepository())));
+            PatientService = new PatientService(new PatientsRepository(dbContext), new EmailVerificationService(dbContext), new RegularAppointmentService(new AppointmentRepository(dbContext), new EmployeesScheduleRepository(dbContext), new DoctorService(new OperationRepository(dbContext), new AppointmentRepository(dbContext), new EmployeesScheduleRepository(dbContext), new DoctorRepository(dbContext)), new PatientsRepository(dbContext), new OperationService(new OperationRepository(dbContext))));
             _env = env;
         }
         /// <summary> This method determines if <c>PatientDto</c> provided <paramref name="dto"/> is valid for creating by calling <c>PatientValidator</c>

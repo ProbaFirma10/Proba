@@ -1,4 +1,5 @@
-﻿using HealthClinic.CL.Dtos;
+﻿using HealthClinic.CL.DbContextModel;
+using HealthClinic.CL.Dtos;
 using HealthClinic.CL.Model.Patient;
 using HealthClinic.CL.Repository;
 using HealthClinic.CL.Service;
@@ -23,16 +24,20 @@ namespace PatientWebApplication.Controllers
         private RegularAppointmentService regularAppointmentService { get; set; }
 
         /// <summary>This constructor injects the SurveyController with matching SurveyService and RegularAppointmentService.</summary>
-        public SurveyController()
+
+        private MyDbContext dbContext;
+         /// <summary>This constructor injects the SurveyController with matching SurveyService and RegularAppointmentService.</summary>
+        public SurveyController(MyDbContext dbContext)
         {
-            SurveyService = new SurveyService(new SurveyRepository());
+            this.dbContext = dbContext;
+            SurveyService = new SurveyService(new SurveyRepository(dbContext));
             regularAppointmentService = new RegularAppointmentService(new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorService(new OperationRepository(), new AppointmentRepository(), new EmployeesScheduleRepository(), new DoctorRepository()), new PatientsRepository(), new OperationService(new OperationRepository()));
         }
 
-        /// <summary> This method determines if <c>SurveyDto</c> provided <paramref name="surveyDto"/> is valid for creating by calling <c>SurveyValidator</c>
-        /// automatically and sends it to <c>SurveyService</c>. </summary>  
-        /// <returns> if fields from <paramref name="surveyDto"/> are not valid 400 Bad Request also if created feedback is not null 200 Ok else 404 Bad Request.</returns>
-        [HttpPost]
+      /// <summary> This method determines if <c>SurveyDto</c> provided <paramref name="surveyDto"/> is valid for creating by calling <c>SurveyValidator</c>
+      /// automatically and sends it to <c>SurveyService</c>. </summary>  
+      /// <returns> if fields from <paramref name="surveyDto"/> are not valid 400 Bad Request also if created feedback is not null 200 Ok else 404 Bad Request.</returns>
+      [HttpPost]
         public IActionResult Create(SurveyDto surveyDto)
         {
             if (SurveyService.Create(surveyDto) == null)
@@ -47,9 +52,9 @@ namespace PatientWebApplication.Controllers
         /// <returns> If List of <c>DoctorAppointment</c> is successfully found, returns 200 OK with list of good DoctorAppointments, otherwise it returns 200 OK with empty list.</returns>
         [HttpGet]      
         public IActionResult Get()
-        {                  
-            return Ok(regularAppointmentService.FindAllValidAppointmentsWithoutSurvey(regularAppointmentService.GetAppointmentsForPatient(2), SurveyService.GetAllSurveysForPatientId(2)));
-        }
+        {
+         return Ok(regularAppointmentService.FindAllValidAppointmentsWithoutSurvey(regularAppointmentService.GetAppointmentsForPatient(2), SurveyService.GetAllSurveysForPatientId(2)));
+      }
 
         [HttpGet("getWithSurveys")]
         public IActionResult GetWithSurveys()

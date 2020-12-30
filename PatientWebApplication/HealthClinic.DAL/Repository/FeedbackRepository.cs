@@ -1,5 +1,6 @@
 ﻿using HealthClinic.CL.DbContextModel;
 using HealthClinic.CL.Model.Patient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,12 +18,16 @@ namespace HealthClinic.CL.Repositories
         {
             this.dbContext = dbContext;
         }
+        public FeedbackRepository()
+        {
+            this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
+        }
 
-        /// <summary> This method saves provided <paramref name="feedback"/> to database. </summary>
-        /// <param name="feedback"><c>feedback</c> is feedback that needs to be saved into database.
-        /// </param>
-        /// <returns> Feedback saved into database. </returns>
-        public Feedback Add(Feedback feedback)
+      /// <summary> This method saves provided <paramref name="feedback"/> to database. </summary>
+      /// <param name="feedback"><c>feedback</c> is feedback that needs to be saved into database.
+      /// </param>
+      /// <returns> Feedback saved into database. </returns>
+      public Feedback Add(Feedback feedback)
         {
             dbContext.Feedbacks.Add(feedback);
             dbContext.SaveChanges();

@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Grpc.Core;
 using HealthClinic.CL.DbContextModel;
 using IntegrationWithPharmacies.Controllers;
+using IntegrationWithPharmacies.Protos;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +19,14 @@ namespace IntegrationWithPharmacies
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment CurrentEnvironment { get; }
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment currentEnvironment)
         {
             Configuration = configuration;
+            CurrentEnvironment = currentEnvironment;
         }
-
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -31,15 +34,25 @@ namespace IntegrationWithPharmacies
                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddControllers();
-            services.AddDbContext<MyDbContext>(options =>
+            
+            if (CurrentEnvironment.IsEnvironment("Testing"))
+            {
+                services.AddDbContext<MyDbContext>(options =>
+                    options.UseInMemoryDatabase("TestingDB").UseLazyLoadingProxies());
+            }
+            else
+            {
+                services.AddDbContext<MyDbContext>(options =>
                 options.UseMySql(ConfigurationExtensions.GetConnectionString(Configuration, "MyDbContextConnectionString")).UseLazyLoadingProxies());
+            }
+
             services.AddSpaStaticFiles(options => options.RootPath = "front/dist");
             services.AddCors(options =>
                 options.AddPolicy("VueCorsPolicy", builder =>
                     builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:57942")));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        private Server server;
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -55,7 +68,7 @@ namespace IntegrationWithPharmacies
             {
                 endpoints.MapControllers();
             });
-        
+
             // add following statements
             app.UseSpaStaticFiles();
             app.UseSpa(spa =>
@@ -68,6 +81,16 @@ namespace IntegrationWithPharmacies
                 }
             });
             app.UseCors("VueCorsPolicy");
+        }
+
+
+        private void OnShutdown()
+        {
+            if (server != null)
+            {
+                server.ShutdownAsync().Wait();
+            }
+
         }
     }
 }

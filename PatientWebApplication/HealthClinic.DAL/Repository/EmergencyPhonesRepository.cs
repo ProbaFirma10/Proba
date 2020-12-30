@@ -5,14 +5,25 @@
  ***********************************************************************/
 
 using HealthClinic.CL.Model.Patient;
+using HealthClinic.CL.DbContextModel;
+using HealthClinic.CL.Model.Orders;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthClinic.CL.Repository
 {
     public class EmergencyPhonesRepository : GenericFileRepository<PhoneNumber>
    {
-        public EmergencyPhonesRepository(string filePath) : base(filePath)  { }
+      private readonly MyDbContext dbContext;
+      public EmergencyPhonesRepository(MyDbContext context)
+      {
+            this.dbContext = context;
+      }
 
-        public EmergencyPhonesRepository() : base()   { }
+      public EmergencyPhonesRepository()
+      {
+            this.dbContext = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().UseMySql("Server=localhost;port=3306;Database=MYSQLHealtcareDB;user=root;password=root").UseLazyLoadingProxies().Options);
+      }
+      public EmergencyPhonesRepository(string filePath) : base(filePath)  { }
 
     }
 }

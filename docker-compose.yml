@@ -2,9 +2,7 @@ version: '3.1'
 services:
 
   web:
-    build: 
-      context: ./PatientWebApplication
-    image: proba1:latest
+    image: nemanja0505/probafirma10:patientwebappliacation_latest
     container_name: web
     restart: on-failure
     networks:
